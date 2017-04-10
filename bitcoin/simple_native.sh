@@ -70,19 +70,20 @@ function build_db48() {
     }
 
     # -> db-4.8.30.NC.tar.gz: OK
-    tar -xzvf db-4.8.30.NC.tar.gz
+    tar -xzvf db-4.8.30.NC.tar.gz || exit 1
 
     # Build the library and install to our prefix
     pushd db-4.8.30.NC/build_unix/
         #  Note: Do a static build so that it can be embedded into the executable, instead of having to find a .so at runtime
         ../dist/configure --enable-cxx --disable-shared --with-pic --prefix=$BDB_PREFIX
-        make -j "${THREADS}"
-        make install
+        make -j "${THREADS}" || exit 1
+        make install || exit 1
     popd
 }
 
 function entire_build() {
     getbtc
+    set_build_options
 
     pushd "$BITCOIN_ROOT"
 
