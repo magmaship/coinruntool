@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# by: goldentropy@magmaship.com
+# by: bincap@magmaship.com ( 755F73E1BFF9A977076E5857D708974B12C4434F )
+# http://github.com:magmaship/coinruntool
+# copyrighted (C) 2017, licence: Public Domain, and 3-Clause BSD License
 
 # this builds the Gitian builds of bitcoin
 # it can take over 8 hours to complete
@@ -9,7 +13,7 @@
 readonly THREADS=2
 readonly MEMORY=3072
 
-readonly REPOSITORY="https://github.com/da2ce7/bitcoin"
+readonly REPOSITORY="https://github.com/magmaship/bitcoin"
 readonly VERSION="knotsbip148"
 readonly SIGNER=$1
 
@@ -22,8 +26,19 @@ function make_checks() {
 
 	if [ -z ${SIGNER} ]; then
 		echo "Signer name is unset - you should provide gpg signer name as first argument - exiting"
+		echo "(Generate own gpg key for this)"
 		exit 1
 	fi
+
+	echo
+	echo "Checking for Mac OS X SDK (filtered)"
+	echo "You can download from Apple the full SDK, and then prepare a smaller subset of this"
+	echo "One example of such SDK, is the one, that after unpacking has:"
+	echo "find | wc -l"
+	echo "29581"
+	echo ""
+	echo ""
+
 
 	if [[ ! -e "./gitian-builder/inputs/MacOSX10.11.sdk.tar.gz" ]]
 	then
