@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # by: goldentropy@magmaship.com
+# by: bincap@magmaship.com ( 755F73E1BFF9A977076E5857D708974B12C4434F )
+# http://github.com:magmaship/coinruntool
 # copyrighted (C) 2017, licence: Public Domain, and 3-Clause BSD License
 
 function describe() {
