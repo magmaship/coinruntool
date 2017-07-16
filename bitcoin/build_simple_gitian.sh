@@ -13,14 +13,20 @@
 readonly THREADS=2
 readonly MEMORY=3072
 
-readonly REPOSITORY="https://github.com/magmaship/bitcoin"
-readonly VERSION="knotsbip148"
-readonly SIGNER=$1
+readonly REPOSITORY="https://github.com/uasf/bitcoin"
+readonly VERSION="v0.14.2-uasfsegwit1.0"
+readonly SIGNER="$1"
 
 readonly PROJECT_NAME=$(echo "${REPOSITORY}" | awk -F'/' '{print $NF}')
 
 set -o errexit
 set -o nounset
+
+function cleanup() {
+	set -x
+	sudo rm -rf bitcoin-detached-sigs/ bitcoin/ gitian-builder/ gitian.sigs/
+	set +x
+}
 
 function make_checks() {
 
@@ -33,17 +39,33 @@ function make_checks() {
 	echo
 	echo "Checking for Mac OS X SDK (filtered)"
 	echo "You can download from Apple the full SDK, and then prepare a smaller subset of this"
-	echo "One example of such SDK, is the one, that after unpacking has:"
-	echo "find | wc -l"
-	echo "29581"
-	echo ""
-	echo ""
+	echo "One example of such SDK, is the one, that after unpacking will show:"
+	echo "  find | wc -l"
+	echo "  29581"
+	echo "(sdk files other then that also might work)"
+	echo "Information how to obtain this - is available online in Bitcoin Gitian docs."
+	echo "sha256 of one version of correct sdk files could be for example:"
+	echo "d0f296a76bf53c9c63a1ec704e17e97388351381edb3080fd3cb4661957a6680"
 
+	sdkfile="MacOSX10.11.sdk.tar.gz"
 
-	if [[ ! -e "./gitian-builder/inputs/MacOSX10.11.sdk.tar.gz" ]]
+	if [[ -e "$HOME/$sdkfile" ]]
+	then
+		echo "Copying MacOSX SDK from home (PWD=$PWD)"
+		mkdir "./gitian-builder/inputs/"
+		if [[ -e "./gitian-builder/inputs/$sdkfile" ]] ; then
+			rm "./gitian-builder/inputs/$sdkfile"
+		fi
+		cp "$HOME/$sdkfile" "./gitian-builder/inputs/"
+	fi
+
+	if [[ ! -e "./gitian-builder/inputs/$sdkfile" ]]
 	then
 		echo "Cannot build for OSX, SDK does not exist"
-		echo "You should provide MacOSX10.11.sdk.tar.gz in gitian-builder/inputs to build all - exiting"
+		echo "in PWD=$PWD"
+		echo "You should provide MacOSX10.11.sdk.tar.gz"
+		echo "Place it in top of your home ($HOME) directory"
+		echo "(script will copy it to gitian-builder/inputs) - exiting"
 		exit 1
 	fi
 }
@@ -53,6 +75,8 @@ function setup_gitian() {
 	# install if not installed
 	[[ "$(dpkg-query -l git | grep '^ii')" != "" ]] \
 		|| sudo apt-get install git
+
+	local base_location="$(pwd)"
 
 	git clone "${REPOSITORY}" || true
 	pushd $PROJECT_NAME
@@ -64,7 +88,7 @@ function setup_gitian() {
 			exit 1
 		fi
 		pushd "contrib"
-			patch < gitian-build.patch
+			patch < "${base_location}/gitian-build.patch"
 		popd
 	popd
 
@@ -84,6 +108,7 @@ function build_gitian() {
 }
 
 function main() {
+	cleanup
 	setup_gitian
 	make_checks
 	build_gitian
