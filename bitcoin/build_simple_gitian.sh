@@ -113,5 +113,13 @@ function main() {
 	make_checks
 	build_gitian
 }
+
 main
+
+echo 
+echo "After all is done, your files are created."
+echo "And then you should place them in one directory and use:"
+echo "script after-build/rename-add-patch.sh provided here, to rename your builded files to include name of the patch like 'uasf'."
+echo "First edit the script and check that the name of patch, placed on top of script, is the one you want (e.g. as in $VERSION)"
+echo 
 
